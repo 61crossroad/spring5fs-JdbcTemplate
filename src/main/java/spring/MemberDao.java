@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 
 @Repository
 public class MemberDao {
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    final private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public MemberDao(DataSource dataSource) {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
@@ -44,12 +44,21 @@ public class MemberDao {
     }
 
     public void update(Member member) {
+        String query = "UPDATE member SET name = :name, password = :password"
+                + " WHERE email = :email";
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("name", member.getName());
+        params.addValue("password", member.getPassword());
+        params.addValue("email", member.getEmail());
+
+        namedParameterJdbcTemplate.update(query, params);
     }
 
     public List<Member> selectAll() {
         String query = "SELECT * FROM member";
 
-        List<Member> results = namedParameterJdbcTemplate.query(
+        return namedParameterJdbcTemplate.query(
                 query,
                 (rs, rowNum) -> {
                     Member member = new Member(
@@ -63,7 +72,15 @@ public class MemberDao {
                     return member;
                 }
         ) ;
+    }
 
-        return results;
+    public Integer count() {
+        String query = "SELECT COUNT(*) FROM member";
+
+        return namedParameterJdbcTemplate.queryForObject(
+                query,
+                new MapSqlParameterSource(),
+                Integer.class
+        );
     }
 }
