@@ -1,9 +1,15 @@
 package spring;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.util.List;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -41,6 +47,25 @@ public class MemberDao {
     }
 
     public void insert(Member member) {
+        String query = "INSERT INTO member (email, password, name, regdate)"
+                + " values (:email, :password, :name, :regdate)";
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("email", member.getEmail());
+        params.addValue("password", member.getPassword());
+        params.addValue("name", member.getName());
+        params.addValue("regdate", Timestamp.valueOf(member.getRegisterDateTime()));
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        namedParameterJdbcTemplate.update(
+                query,
+                params,
+                keyHolder
+        );
+
+        Number keyValue = keyHolder.getKey();
+        member.setId(keyValue.longValue());
     }
 
     public void update(Member member) {

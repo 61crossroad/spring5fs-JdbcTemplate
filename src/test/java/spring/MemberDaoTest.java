@@ -36,4 +36,17 @@ public class MemberDaoTest {
 
         testSelectByEmail();
     }
+
+    @Test
+    public void testInsert() {
+        Member member = new Member(
+                "inserTest@test.com",
+                "1234",
+                "Test Name",
+                LocalDateTime.now()
+        );
+        memberDao.insert(member);
+
+        System.out.println(member);
+    }
 }
