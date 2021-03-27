@@ -9,6 +9,8 @@ public class Member {
     private String name;
     private LocalDateTime registerDateTime;
 
+    public Member() {}
+
     public Member(String email, String password, String name, LocalDateTime regDateTime) {
         this.email = email;
         this.password = password;

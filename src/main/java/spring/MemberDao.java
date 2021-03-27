@@ -1,11 +1,9 @@
 package spring;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.List;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -44,6 +42,35 @@ public class MemberDao {
         );
 
         return results.isEmpty() ? null : results.get(0);
+    }
+
+    public Member selectMember(Long id) {
+        String query = "SELECT * FROM member WHERE id = :id";
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("id", id);
+
+        try {
+            return namedParameterJdbcTemplate.queryForObject(
+                    query,
+                    params,
+                    // one for (rs, rowNum), many for rs -> rs.next()
+                    (rs, rowNum) -> {
+                        Member member = new Member(
+                                rs.getString("email"),
+                                rs.getString("password"),
+                                rs.getString("name"),
+                                rs.getTimestamp("regdate").toLocalDateTime()
+                        );
+                        member.setId(id);
+
+                        return member;
+                    }
+            );
+            // It includes EmptyResultDataAccessException
+        } catch (IncorrectResultSizeDataAccessException e) {
+            return new Member();
+        }
     }
 
     public void insert(Member member) {
