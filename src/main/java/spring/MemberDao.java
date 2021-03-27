@@ -96,7 +96,7 @@ public class MemberDao {
 
                     return member;
                 }
-        ) ;
+        );
     }
 
     public Integer count() {
